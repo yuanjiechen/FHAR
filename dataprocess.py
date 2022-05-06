@@ -19,6 +19,7 @@ class Eat_data(Dataset):
         self.path_list = data_path_list
         self.path = Path(self.path_list[selection]).joinpath(split)
         self.selection = selection
+        self.split = split
 
         try:
             self.data, self.label = eval(f"self.{self.selection}_process")(self.path)
@@ -26,20 +27,20 @@ class Eat_data(Dataset):
             raise NotImplementedError("No such dataset process method !")
 
     def __getitem__(self, index):
-        # if self.selection == "CNN_DEPTH":
+        if self.selection == "DEPTH_LSTM" and self.split == "train":
 
-        #     tr_cp = transforms.RandomResizedCrop(240, interpolation=transforms.InterpolationMode.BILINEAR)
+            tr_cp = transforms.RandomResizedCrop(240, ratio=(0.9, 0.95), interpolation=transforms.InterpolationMode.BILINEAR)
 
-        #     croped = []
-        #     i = 0
-        #     #print(self.data[index][i].size())
-        #     while i < (self.data[index].size()[0]):
-        #         croped.append(tr_cp(torch.unsqueeze(self.data[index][i], dim=0)))
-        #         i = i + 1
+            croped = []
+            i = 0
+            #print(self.data[index][i].size())
+            while i < (self.data[index].size()[0]):
+                croped.append(tr_cp(torch.unsqueeze(self.data[index][i], dim=0)))
+                i = i + 1
 
-        #     croped = torch.cat(croped, dim=0)
-        #     #print(croped.size())
-        #     return croped, self.label[index]
+            croped = torch.cat(croped, dim=0)
+            #print(croped.size())
+            return croped, self.label[index]
         return self.data[index], self.label[index]
 
     def __len__(self):

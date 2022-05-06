@@ -11,7 +11,8 @@ def get_loss(selection):
         "CNN_LSTM":nn.CrossEntropyLoss(), 
         "CNN_LN": nn.CrossEntropyLoss(),
         "CNN_DEPTH":nn.CrossEntropyLoss(),
-        "DEPTH_LSTM":nn.CrossEntropyLoss()
+        "DEPTH_LSTM":nn.CrossEntropyLoss(),
+        "MARS":nn.MSELoss()
     }
 
     return loss_dict[selection]
@@ -22,7 +23,7 @@ def get_optimizer(selection, params, lr, decay=0):
     #     "CNN_LSTM":torch.optim.Adam(params, lr, weight_decay=decay),
     #     #"CNN_LN":torch.optim.Adam(params, lr, weight_decay=decay)
     # }
-
+    if selection == "MARS": return torch.optim.Adam(params, lr, weight_decay=decay, betas=[0.5, 0.999], amsgrad=False)
     return torch.optim.Adam(params, lr, weight_decay=decay)
 
 def get_lr_decay(selection, optim, decay):
@@ -33,7 +34,8 @@ def get_lr_decay(selection, optim, decay):
         "CNN_LSTM":torch.optim.lr_scheduler.ExponentialLR(optim, decay),
         "CNN_LN": torch.optim.lr_scheduler.ExponentialLR(optim, decay),
         "CNN_DEPTH": torch.optim.lr_scheduler.ExponentialLR(optim, decay),
-        "DEPTH_LSTM": torch.optim.lr_scheduler.ExponentialLR(optim, decay)
+        "DEPTH_LSTM": torch.optim.lr_scheduler.ExponentialLR(optim, decay),
+        "MARS": torch.optim.lr_scheduler.ExponentialLR(optim, decay)
     }
 
     return decay_dict[selection]

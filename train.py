@@ -164,7 +164,7 @@ class Train():
                 print('| Average time:', average_inf_time)
 
 
-            lr_decayer.step()
+            if lr_decayer is not None: lr_decayer.step()
             res = [total_train_acc / len(self.train_loader), total_acc, train_loss / len(self.train_loader), test_loss / len(self.test_loader)]
             res.extend(recall)
             res.extend(precision)
