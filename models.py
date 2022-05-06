@@ -101,6 +101,51 @@ class CNN_DEPTH(nn.Module):
         x = F.relu(self.l2(x))
         return x, x
 
+class DEPTH_LSTM(nn.Module):
+    def __init__(self, n_classes, in_shape=[1, 32, 32, 1568], out_shape=[32, 32, 32, 128], kernel_size=[7, 5, 3], stride=[2, 2, 1], pool_kernal=[2, 2, 2], pool_stride=[2, 2, 2]):
+        super(DEPTH_LSTM, self).__init__()
+        self.pool_kernal = pool_kernal
+        self.pool_stride = pool_stride
+
+        self.input_shape = in_shape
+        self.output_shape = out_shape
+
+        self.conv1 = nn.Conv2d(in_channels=self.input_shape[0], out_channels=self.output_shape[0], kernel_size=kernel_size[0], stride=stride[0], padding=1) 
+        self.bn = nn.BatchNorm2d(32)
+        self.conv2 = nn.Conv2d(in_channels=self.input_shape[1], out_channels=self.output_shape[1], kernel_size=kernel_size[1], stride=stride[1], padding=1)
+        self.conv3 = nn.Conv2d(in_channels=self.input_shape[2], out_channels=self.output_shape[2], kernel_size=kernel_size[2], stride=stride[2], padding=1) 
+
+        self.rnn = nn.LSTM(input_size=self.input_shape[3], hidden_size=self.output_shape[3], batch_first=True, bidirectional=True, num_layers=1)
+        self.l1 = nn.Linear(in_features=self.output_shape[3] * 2, out_features=n_classes)
+
+    def forward(self, x):
+        batch_size = x.size()[0]
+        
+        x = x.flatten(0,1)
+        x = torch.unsqueeze(x, 1)
+        # print(x.size())
+        x = F.relu(self.bn(self.conv1(x)))
+        x = F.max_pool2d(x, kernel_size=self.pool_kernal[0], stride=self.pool_stride[0])
+        x = F.relu(self.conv2(x))
+        x = F.max_pool2d(x, kernel_size=self.pool_kernal[1], stride=self.pool_stride[1])
+        x = F.relu(self.conv3(x))
+        x = F.max_pool2d(x, kernel_size=self.pool_kernal[2], stride=self.pool_stride[2])
+        x = torch.flatten(x, 1)
+        x = x.reshape((batch_size,60,self.input_shape[-1]))
+
+        x = F.dropout(x)
+
+        x, (h_n, c_n) = self.rnn(x)
+        x = h_n[-2:, ...]
+        x = torch.transpose(x, 0, 1)
+        x = torch.flatten(x, 1)
+
+        x = F.dropout(x, 0.3)
+
+        x = F.softmax(self.l1(x), 1)
+
+        return x, x
+
 class CNN_LSTM(nn.Module):
     def __init__(self, n_classes, in_shape=[1, 32, 32, 32, 32, 32, 576], out_shape=[32, 32, 32, 32, 32, 32, 64], kernel_size=[3, 3, 3], stride=[1, 1, 1], pool_kernal=[2, 2, 2], pool_stride=[2, 2, 2]):
         super(CNN_LSTM, self).__init__()
@@ -177,7 +222,7 @@ class Fused(nn.Module):
 class Model(nn.Module):
     def __init__(self, n_classes, selection):
         super(Model, self).__init__()
-        if selection not in ["CNN_LSTM", "MM_EAT", "CNN_LN", "Fused", "CNN_DEPTH"]:
+        if selection not in ["CNN_LSTM", "MM_EAT", "CNN_LN", "Fused", "CNN_DEPTH", "DEPTH_LSTM"]:
             raise NotImplementedError
         
         net_class = locate(f"models.{selection}")
@@ -197,7 +242,7 @@ if __name__ == "__main__":
 
     #in_shape = [256, 96, 256, 17408, 2048, 128] # 奇怪的数字
     #out_shape = [96, 256, 512, 2048, 128]
-    nt = Model(4, "CNN_DEPTH").to("cuda:0")
+    nt = Model(4, "DEPTH_LSTM").to("cuda:0")
     # for pm in nt.parameters():
     #     print(pm)
     nt(x)

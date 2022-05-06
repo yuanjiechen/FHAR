@@ -148,4 +148,21 @@ class Eat_data(Dataset):
         label = np.concatenate(label, axis=0)
 
         return torch.tensor(data, dtype=torch.float32), torch.tensor(label, dtype=torch.long)        
+
+    def DEPTH_LSTM_process(self, path):
+        data = []
+        label = []
+
+        for file in path.rglob("*.npz"):
+            f_data = np.load(file)
+
+            data.append(f_data['arr_0'])
+            tp_label = np.asarray(f_data['arr_1'])
+            label.append(tp_label)
+            # break
+
+        data = np.concatenate(data, axis=0)
+        label = np.concatenate(label, axis=0)
+
+        return torch.tensor(data, dtype=torch.float32), torch.tensor(label, dtype=torch.long)       
 # ddd = Eat_data(Path("../Processed_Data/"), "CNN_LSTM", "train")

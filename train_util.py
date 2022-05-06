@@ -10,7 +10,8 @@ def get_loss(selection):
     loss_dict = {
         "CNN_LSTM":nn.CrossEntropyLoss(), 
         "CNN_LN": nn.CrossEntropyLoss(),
-        "CNN_DEPTH":nn.CrossEntropyLoss()
+        "CNN_DEPTH":nn.CrossEntropyLoss(),
+        "DEPTH_LSTM":nn.CrossEntropyLoss()
     }
 
     return loss_dict[selection]
@@ -31,7 +32,8 @@ def get_lr_decay(selection, optim, decay):
     decay_dict = {
         "CNN_LSTM":torch.optim.lr_scheduler.ExponentialLR(optim, decay),
         "CNN_LN": torch.optim.lr_scheduler.ExponentialLR(optim, decay),
-        "CNN_DEPTH": torch.optim.lr_scheduler.ExponentialLR(optim, decay)
+        "CNN_DEPTH": torch.optim.lr_scheduler.ExponentialLR(optim, decay),
+        "DEPTH_LSTM": torch.optim.lr_scheduler.ExponentialLR(optim, decay)
     }
 
     return decay_dict[selection]
