@@ -9,7 +9,8 @@ from sklearn.metrics import precision_recall_fscore_support
 def get_loss(selection):
     loss_dict = {
         "CNN_LSTM":nn.CrossEntropyLoss(), 
-        "CNN_LN": nn.CrossEntropyLoss()
+        "CNN_LN": nn.CrossEntropyLoss(),
+        "CNN_DEPTH":nn.CrossEntropyLoss()
     }
 
     return loss_dict[selection]
@@ -29,7 +30,8 @@ def get_lr_decay(selection, optim, decay):
         
     decay_dict = {
         "CNN_LSTM":torch.optim.lr_scheduler.ExponentialLR(optim, decay),
-        "CNN_LN": torch.optim.lr_scheduler.ExponentialLR(optim, decay)
+        "CNN_LN": torch.optim.lr_scheduler.ExponentialLR(optim, decay),
+        "CNN_DEPTH": torch.optim.lr_scheduler.ExponentialLR(optim, decay)
     }
 
     return decay_dict[selection]

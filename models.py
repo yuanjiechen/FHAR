@@ -85,19 +85,21 @@ class CNN_DEPTH(nn.Module):
         self.l2 = nn.Linear(in_features=self.input_shape[4], out_features=n_classes)
 
     def forward(self, x):
+        x = torch.unsqueeze(x, 1)
+        #print(x.size())
         x = F.relu(self.bn(self.conv1(x)))
         x = F.max_pool3d(x, kernel_size=self.pool_kernal[0], stride=self.pool_stride[0])
         x = F.relu(self.conv2(x))
         x = F.max_pool3d(x, kernel_size=self.pool_kernal[1], stride=self.pool_stride[1])
         x = F.relu(self.conv3(x))
         x = F.max_pool3d(x, kernel_size=self.pool_kernal[2], stride=self.pool_stride[2])
-
+        #print(x.size())
         x = torch.flatten(x, 1)
         x = F.dropout(x)
         x = F.relu(self.l1(x))
         x = F.dropout(x, 0.3)
         x = F.relu(self.l2(x))
-        return x
+        return x, x
 
 class CNN_LSTM(nn.Module):
     def __init__(self, n_classes, in_shape=[1, 32, 32, 32, 32, 32, 576], out_shape=[32, 32, 32, 32, 32, 32, 64], kernel_size=[3, 3, 3], stride=[1, 1, 1], pool_kernal=[2, 2, 2], pool_stride=[2, 2, 2]):
@@ -191,7 +193,7 @@ class Model(nn.Module):
 # out_shape = [32, 32, 32, 32, 32, 32, 20]
 if __name__ == "__main__":
     #x = torch.randn((5, 60, 32, 128))
-    x = torch.randn((5, 1, 60, 240, 240)).to("cuda:0")
+    x = torch.randn((5,  60, 240, 240)).to("cuda:0")
 
     #in_shape = [256, 96, 256, 17408, 2048, 128] # 奇怪的数字
     #out_shape = [96, 256, 512, 2048, 128]

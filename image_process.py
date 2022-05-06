@@ -3,46 +3,42 @@ from pathlib import Path
 import numpy as np
 import re
 
-img_path = Path("/mnt/ssd1/fooddataset/box_heatmaps/")
-save_path = Path("/home/yuanjie/heatmaps/")
+
+
+depth_path = Path("/home/deepblue/mmWave_parse/depth_images")
+processed_depth = Path("/home/yuanjie/depth")
 pt = re.compile(r'(?<=a)[0-9]{2}|(?<=s)[0-9]{2}')
 
-def cuts():
-    for f in img_path.rglob("*.png"):
-        img = Image.open(f)
-        img = img.crop((144, 50, 1037, 236))
-        img.save(f)
-        
-
-def split_train_test():
+def split_train_test(type="depth"):
     hz = 30
     timestep = 0.5
-    window = 5
+    window = 2
 
     dic = {0:0, 3:1, 6:2, 7:3, 8:4, 9:5, 10:6, 11:7, 12:8}
     data_count = 0
-    for fd in img_path.glob("*"):
+    for fd in depth_path.glob("*"):
         if fd.name in ['train', "test"]:
             continue
         else:
-            act, subj = pt.findall(fd.name)
-            act = dic[int(act) - 1]
-            subj = int(subj)
             print(fd.name)
+            try:
+                act, subj = pt.findall(fd.name)
+            except:
+                continue
+            act = int(act) - 1#dic[int(act) - 1]
+            subj = int(subj)
 
-            img_list = sorted(fd.glob("*.npz"), key=lambda x:int(x.stem))
-
+            if type == "mmwave": img_list = sorted(fd.glob("*.npz"), key=lambda x:int(x.stem))
+            elif type == "depth": img_list = sorted(fd.glob("*.png"), key=lambda x:int(x.stem))
             i = 0
             one_data = []
             while (i + hz * window) < len(img_list):
                 sample = []
                 tmp_list = img_list[i:i + hz * window]  
                 for image in tmp_list:
-                    img = np.load(image)["arr_0"]
-                    #print(img.shape)
-                    #img = np.fromfile(image).reshape((32, 128))
-                    #print(img.shape)
-                    #return
+                    if type == "mmwave": img = np.load(image)["arr_0"]
+                    elif type == "depth": img = np.asarray(Image.open(image, "r"))
+
                     sample.append(img)
                 
                 one_data.append(np.stack(sample, axis=0))
@@ -52,10 +48,10 @@ def split_train_test():
             labels = np.repeat(act, train_data.shape[0])
 
             if subj < 10:
-                savepath = save_path.joinpath(f"train/{data_count}.npz")
+                savepath = processed_depth.joinpath(f"train/{data_count}.npz")
 
             else:
-                savepath = save_path.joinpath(f"test/{data_count}.npz")
+                savepath = processed_depth.joinpath(f"test/{data_count}.npz")
             
             data_count += 1
             print(train_data.shape)

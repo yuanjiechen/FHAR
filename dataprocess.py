@@ -3,6 +3,9 @@ import time
 import torch
 from torch.utils.data import Dataset
 import numpy as np
+from PIL import Image
+from torchvision import transforms
+import torchvision
 
 from util.getlog import get_log
 logger = get_log()
@@ -15,13 +18,28 @@ class Eat_data(Dataset):
 
         self.path_list = data_path_list
         self.path = Path(self.path_list[selection]).joinpath(split)
+        self.selection = selection
 
         try:
-            self.data, self.label = eval(f"self.{selection}_process")(self.path)
+            self.data, self.label = eval(f"self.{self.selection}_process")(self.path)
         except BaseException:
             raise NotImplementedError("No such dataset process method !")
 
     def __getitem__(self, index):
+        # if self.selection == "CNN_DEPTH":
+
+        #     tr_cp = transforms.RandomResizedCrop(240, interpolation=transforms.InterpolationMode.BILINEAR)
+
+        #     croped = []
+        #     i = 0
+        #     #print(self.data[index][i].size())
+        #     while i < (self.data[index].size()[0]):
+        #         croped.append(tr_cp(torch.unsqueeze(self.data[index][i], dim=0)))
+        #         i = i + 1
+
+        #     croped = torch.cat(croped, dim=0)
+        #     #print(croped.size())
+        #     return croped, self.label[index]
         return self.data[index], self.label[index]
 
     def __len__(self):
@@ -114,6 +132,20 @@ class Eat_data(Dataset):
 
         return [data_1, data_2], label
 
-    def CNN_DEPTH_process(self):
-        pass
+    def CNN_DEPTH_process(self, path):
+        data = []
+        label = []
+
+        for file in path.rglob("*.npz"):
+            f_data = np.load(file)
+
+            data.append(f_data['arr_0'])
+            tp_label = np.asarray(f_data['arr_1'])
+            label.append(tp_label)
+            # break
+
+        data = np.concatenate(data, axis=0)
+        label = np.concatenate(label, axis=0)
+
+        return torch.tensor(data, dtype=torch.float32), torch.tensor(label, dtype=torch.long)        
 # ddd = Eat_data(Path("../Processed_Data/"), "CNN_LSTM", "train")
