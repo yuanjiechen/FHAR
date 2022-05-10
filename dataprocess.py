@@ -29,7 +29,7 @@ class Eat_data(Dataset):
     def __getitem__(self, index):
         if self.selection == "DEPTH_LSTM" and self.split == "train":
 
-            tr_cp = transforms.RandomResizedCrop(240, ratio=(0.9, 0.95), interpolation=transforms.InterpolationMode.BILINEAR)
+            tr_cp = transforms.RandomResizedCrop(240, ratio=(0.94, 0.95), interpolation=transforms.InterpolationMode.BILINEAR)
 
             croped = []
             i = 0

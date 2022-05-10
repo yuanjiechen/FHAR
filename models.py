@@ -102,7 +102,7 @@ class CNN_DEPTH(nn.Module):
         return x, x
 
 class DEPTH_LSTM(nn.Module):
-    def __init__(self, n_classes, in_shape=[1, 32, 32, 1568], out_shape=[32, 32, 32, 128], kernel_size=[3, 3, 3], stride=[2, 2, 1], pool_kernal=[2, 2, 2], pool_stride=[2, 2, 2]):
+    def __init__(self, n_classes, in_shape=[1, 32, 32, 32, 1568], out_shape=[32, 32, 32, 32, 64], kernel_size=[3, 3, 3, 3], stride=[2, 2, 1, 1], pool_kernal=[2, 2, 2, 2], pool_stride=[2, 2, 2, 2]):
         super(DEPTH_LSTM, self).__init__()
         self.pool_kernal = pool_kernal
         self.pool_stride = pool_stride
@@ -111,12 +111,13 @@ class DEPTH_LSTM(nn.Module):
         self.output_shape = out_shape
 
         self.conv1 = nn.Conv2d(in_channels=self.input_shape[0], out_channels=self.output_shape[0], kernel_size=kernel_size[0], stride=stride[0], padding=1) 
-        self.bn = nn.BatchNorm2d(32)
+        self.bn = nn.BatchNorm2d(self.output_shape[0])
         self.conv2 = nn.Conv2d(in_channels=self.input_shape[1], out_channels=self.output_shape[1], kernel_size=kernel_size[1], stride=stride[1], padding=1)
         self.conv3 = nn.Conv2d(in_channels=self.input_shape[2], out_channels=self.output_shape[2], kernel_size=kernel_size[2], stride=stride[2], padding=1) 
-
-        self.rnn = nn.LSTM(input_size=self.input_shape[3], hidden_size=self.output_shape[3], batch_first=True, bidirectional=True, num_layers=1)
-        self.l1 = nn.Linear(in_features=self.output_shape[3] * 2, out_features=n_classes)
+        self.conv4 = nn.Conv2d(in_channels=self.input_shape[3], out_channels=self.output_shape[3], kernel_size=kernel_size[3], stride=stride[3], padding=1) 
+        #self.bn2 = nn.BatchNorm2d(self.output_shape[2])
+        self.rnn = nn.LSTM(input_size=self.input_shape[4], hidden_size=self.output_shape[4], batch_first=True, bidirectional=True, num_layers=1)
+        self.l1 = nn.Linear(in_features=self.output_shape[4] * 2, out_features=n_classes)
 
     def forward(self, x):
         batch_size = x.size()[0]
@@ -130,7 +131,9 @@ class DEPTH_LSTM(nn.Module):
         x = F.max_pool2d(x, kernel_size=self.pool_kernal[1], stride=self.pool_stride[1])
         x = F.relu(self.conv3(x))
         x = F.max_pool2d(x, kernel_size=self.pool_kernal[2], stride=self.pool_stride[2])
-        #print(x.size())
+        x = F.relu(self.conv4(x))
+        # x = F.max_pool2d(x, kernel_size=self.pool_kernal[3], stride=self.pool_stride[3])
+        # print(x.size())
         x = torch.flatten(x, 1)
         x = x.reshape((batch_size,60,self.input_shape[-1]))
         
@@ -177,7 +180,7 @@ class MARS(nn.Module):
         x = F.dropout(x, 0.4)
 
         x = self.l2(x)
-        
+
 
         print(x.size())
 
@@ -273,11 +276,11 @@ class Model(nn.Module):
 # out_shape = [32, 32, 32, 32, 32, 32, 20]
 if __name__ == "__main__":
     #x = torch.randn((5, 60, 32, 128))
-    x = torch.randn((10, 5, 8, 8)).to("cuda:0")
+    x = torch.randn((5, 60, 240, 240)).to("cuda:0")
 
     #in_shape = [256, 96, 256, 17408, 2048, 128] # 奇怪的数字
     #out_shape = [96, 256, 512, 2048, 128]
-    nt = Model(4, "MARS").to("cuda:0")
+    nt = Model(4, "DEPTH_LSTM").to("cuda:0")
     # for pm in nt.parameters():
     #     print(pm)
     nt(x)
