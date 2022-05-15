@@ -12,7 +12,7 @@ import numpy as np
 from util.getlog import get_log
 from util.dev_check import gpu_check
 from train_util import get_loss, get_lr_decay, get_optimizer, cal_result, get_config, calculate_accuracy, calculate_result
-from dataprocess import Eat_data
+from dataprocess_update import Eat_data
 from models import Model
 logger = get_log()
 torch.manual_seed(7)
@@ -53,7 +53,7 @@ class Train():
             dataset=train_set,
             batch_size=self.batch_sz,
             shuffle=True,
-            num_workers=0,
+            num_workers=4,
             drop_last=True
         )
 
@@ -61,7 +61,7 @@ class Train():
             dataset=test_set,
             batch_size=self.batch_sz,
             shuffle=False,
-            num_workers=0,
+            num_workers=4,
             drop_last=True
         )
 
