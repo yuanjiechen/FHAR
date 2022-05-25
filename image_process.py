@@ -4,9 +4,15 @@ import numpy as np
 import re
 import time
 
+import pandas as pd
+
 
 depth_path = Path("/home/deepblue/mmWave_parse/depth_images")
 processed_depth = Path("/home/yuanjie/depth_")
+
+skeleton_path = Path("/home/deepblue/mmWave_parse/skeleton_images")
+processed_skeleton = Path("/home/yuanjie/skeloton")
+
 pt = re.compile(r'(?<=a)[0-9]{2}|(?<=s)[0-9]{2}')
 
 def split_train_test(type="depth"):
@@ -16,7 +22,7 @@ def split_train_test(type="depth"):
 
     dic = {0:0, 3:1, 6:2, 7:3, 8:4, 9:5, 10:6, 11:7, 12:8}
     data_count = 0
-    for fd in depth_path.glob("*"):
+    for fd in skeleton_path.glob("*"):
         if fd.name in ['train', "test"]:
             continue
         else:
@@ -30,52 +36,67 @@ def split_train_test(type="depth"):
 
             if type == "mmwave": img_list = sorted(fd.glob("*.npz"), key=lambda x:int(x.stem))
             elif type == "depth": img_list = sorted(fd.glob("*.png"), key=lambda x:int(x.stem))
-            i = 0
-            one_data = []
-            while (i + hz * window) < len(img_list):
-                sample = []
-                tmp_list = img_list[i:i + hz * window]  
-                for image in tmp_list:
-                    if type == "mmwave": img = np.load(image)["arr_0"]
-                    elif type == "depth": img = np.asarray(Image.open(image, "r"))
+            elif type == "skeloton": 
+                img_list = list(fd.rglob("*.csv"))
+                data = pd.read_csv(img_list[0], header=None)
+                i = 0
+                while i < len(list(data.index)):
+                    one_data = np.asarray(data.iloc[i, :], dtype=np.float32)
+                    labels = np.asarray([act])
+                    i += 1
+                    if subj < 10:
+                        savepath = processed_skeleton.joinpath(f"train/{data_count}.npz")
 
-                    sample.append(img)
-                
-                one_data = np.stack(sample, axis=0)
-                labels = np.asarray([act])
-                # one_data.append(np.stack(sample, axis=0))
-                i += int(timestep * hz)
-            
-            # train_data = np.stack(one_data, axis=0)
+                    else:
+                        savepath = processed_skeleton.joinpath(f"test/{data_count}.npz")
+                    
+                    data_count += 1
+                    # print(one_data[0])
+                    np.savez(savepath, one_data, labels)
 
-            # labels = np.repeat(act, train_data.shape[0])
+            if type == "mmwave" or type == "depth":
+                i = 0
+                one_data = []
+                while (i + hz * window) < len(img_list):
+                    sample = []
+                    tmp_list = img_list[i:i + hz * window]  
+                    for image in tmp_list:
+                        if type == "mmwave": img = np.load(image)["arr_0"]
+                        elif type == "depth": img = np.asarray(Image.open(image, "r"))
 
-                if subj < 10:
-                    savepath = processed_depth.joinpath(f"train/{data_count}.npz")
+                        sample.append(img)
+                    
+                    one_data = np.stack(sample, axis=0)
+                    labels = np.asarray([act])
+                    # one_data.append(np.stack(sample, axis=0))
+                    i += int(timestep * hz)
 
-                else:
-                    savepath = processed_depth.joinpath(f"test/{data_count}.npz")
-                
-                data_count += 1
-                print(one_data.shape)
-                np.savez(savepath, one_data, labels)
+                    if subj < 10:
+                        savepath = processed_skeleton.joinpath(f"train/{data_count}.npz")
+
+                    else:
+                        savepath = processed_skeleton.joinpath(f"test/{data_count}.npz")
+                    
+                    data_count += 1
+                    print(one_data.shape)
+                    np.savez(savepath, one_data, labels)
 
 
 def generate_list():
-    train_path = processed_depth.joinpath("train/")
-    test_path = processed_depth.joinpath("test/")
+    train_path = processed_skeleton.joinpath("train/")
+    test_path = processed_skeleton.joinpath("test/")
 
     train_list = [name.stem for name in train_path.glob("*.npz")]
     test_list = [name.stem for name in test_path.glob("*.npz")]
 
-    with open(processed_depth.joinpath("train.txt"), "w+") as f:
+    with open(processed_skeleton.joinpath("train.txt"), "w+") as f:
         for name in train_list:
             f.write(f"{name}\n")
     
-    with open(processed_depth.joinpath("test.txt"), "w+") as f:
+    with open(processed_skeleton.joinpath("test.txt"), "w+") as f:
         for name in test_list:
             f.write(f"{name}\n")
         
 
-split_train_test()
+split_train_test("skeloton")
 generate_list()

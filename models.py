@@ -153,7 +153,7 @@ class DEPTH_LSTM(nn.Module):
         return x, x
 
 class MARS(nn.Module):
-    def __init__(self, n_classes, in_shape=[5, 16, 2048, 512], out_shape=[16, 32, 512, 57], kernel_size=[3, 3, 3], stride=[1, 1, 1]) -> None:
+    def __init__(self, n_classes, in_shape=[3, 16, 1056, 128], out_shape=[16, 32, 128], kernel_size=[3, 3, 3], stride=[1, 1, 1]) -> None:
         super(MARS, self).__init__()
 
         self.input_shape = in_shape
@@ -164,7 +164,7 @@ class MARS(nn.Module):
         self.bn1 = nn.BatchNorm2d(self.output_shape[1], momentum=0.95)
         self.l1 = nn.Linear(in_features=self.input_shape[2], out_features=self.output_shape[2])
         self.bn2 = nn.BatchNorm1d(self.output_shape[2], momentum=0.95)
-        self.l2 = nn.Linear(in_features=self.input_shape[3], out_features=self.output_shape[3])
+        self.l2 = nn.Linear(in_features=self.input_shape[3], out_features=n_classes)
         # self.l2 = n
 
     def forward(self, x):
@@ -182,8 +182,8 @@ class MARS(nn.Module):
 
         x = self.l2(x)
 
+        return x, x
 
-        print(x.size())
 
 class CNN_LSTM(nn.Module):
     def __init__(self, n_classes, in_shape=[1, 32, 32, 32, 32, 32, 576], out_shape=[32, 32, 32, 32, 32, 32, 64], kernel_size=[3, 3, 3], stride=[1, 1, 1], pool_kernal=[2, 2, 2], pool_stride=[2, 2, 2]):

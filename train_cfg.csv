@@ -3,6 +3,6 @@ CNN_LSTM,/mnt/ssd1/fooddataset/aug_default_10/, 0.001, 10, 100, 0, 0.98
 CNN_LN,../heatmaps/, 0.01, 30, 500, 0, 0.95
 CNN_DEPTH,/home/yuanjie/depth/,0.001,10,100,0,0.98
 DEPTH_LSTM,/home/yuanjie/depth_/,0.001,10,1000,0,0.98
-MARS,,0.001,128,150,0,0
+MARS,/home/yuanjie/skeloton/,0.001,128,150,0,0
 Fused,/, 0.001, 30, 500, 0, 0.95
 Default,../data/, 0.001, 32, 100, 0.0005, 0.98

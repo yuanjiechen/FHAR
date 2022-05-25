@@ -12,7 +12,7 @@ def get_loss(selection):
         "CNN_LN": nn.CrossEntropyLoss(),
         "CNN_DEPTH":nn.CrossEntropyLoss(),
         "DEPTH_LSTM":nn.CrossEntropyLoss(),
-        "MARS":nn.MSELoss()
+        "MARS":nn.CrossEntropyLoss()
     }
 
     return loss_dict[selection]
