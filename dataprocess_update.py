@@ -47,9 +47,9 @@ class Eat_data(Dataset):
 
             croped = torch.cat(croped, dim=0)
             return croped, label
-        elif self.selection == "MARS":
-            img = data.reshape((3, 3, 11))
-            return img, label
+        # elif self.selection == "MARS":
+        #     img = data.reshape((3, 3, 11))
+        #     return img, label
         return data, label
 
     def __len__(self):

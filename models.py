@@ -153,7 +153,7 @@ class DEPTH_LSTM(nn.Module):
         return x, x
 
 class MARS(nn.Module):
-    def __init__(self, n_classes, in_shape=[3, 16, 1056, 128], out_shape=[16, 32, 128], kernel_size=[3, 3, 3], stride=[1, 1, 1]) -> None:
+    def __init__(self, n_classes, in_shape=[5, 16, 2048, 1024, 128], out_shape=[16, 32, 512, 128], kernel_size=[3, 3, 3], stride=[1, 1, 1]) -> None:
         super(MARS, self).__init__()
 
         self.input_shape = in_shape
@@ -162,18 +162,30 @@ class MARS(nn.Module):
         self.conv2 = nn.Conv2d(in_channels=self.input_shape[1], out_channels=self.output_shape[1], kernel_size=kernel_size[1], stride=stride[1], padding="same")
 
         self.bn1 = nn.BatchNorm2d(self.output_shape[1], momentum=0.95)
-        self.l1 = nn.Linear(in_features=self.input_shape[2], out_features=self.output_shape[2])
-        self.bn2 = nn.BatchNorm1d(self.output_shape[2], momentum=0.95)
-        self.l2 = nn.Linear(in_features=self.input_shape[3], out_features=n_classes)
+        self.rnn = nn.LSTM(input_size=self.input_shape[2], hidden_size=self.output_shape[2], batch_first=True, bidirectional=True, num_layers=1)
+        self.l1 = nn.Linear(in_features=self.input_shape[3], out_features=self.output_shape[3])
+        self.bn2 = nn.BatchNorm1d(self.input_shape[4], momentum=0.95)
+        self.l2 = nn.Linear(in_features=self.input_shape[4], out_features=n_classes)
         # self.l2 = n
 
     def forward(self, x):
+        batch_size = x.size()[0]
+        x = x.flatten(0,1)
+
         x = F.relu(self.conv1(x))
         x = F.dropout(x, 0.3)
         x = F.relu(self.conv2(x))
         x = F.dropout(x, 0.3)
         
         x = self.bn1(x)
+        x = torch.flatten(x, 1)
+        x = x.reshape((batch_size,60,self.input_shape[2]))
+        
+        
+        x = F.dropout(x, 0.5)
+        x, (h_n, c_n) = self.rnn(x)
+        x = h_n[-2:, ...]
+        x = torch.transpose(x, 0, 1)
         x = torch.flatten(x, 1)
 
         x = F.relu(self.l1(x))
