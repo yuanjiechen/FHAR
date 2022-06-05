@@ -163,9 +163,9 @@ class MARS(nn.Module):
 
         self.bn1 = nn.BatchNorm2d(self.output_shape[1], momentum=0.95)
         self.rnn = nn.LSTM(input_size=self.input_shape[2], hidden_size=self.output_shape[2], batch_first=True, bidirectional=True, num_layers=1)
-        self.l1 = nn.Linear(in_features=self.input_shape[3], out_features=self.output_shape[3])
-        self.bn2 = nn.BatchNorm1d(self.input_shape[4], momentum=0.95)
-        self.l2 = nn.Linear(in_features=self.input_shape[4], out_features=n_classes)
+        # self.l1 = nn.Linear(in_features=self.input_shape[3], out_features=self.output_shape[3])
+        # self.bn2 = nn.BatchNorm1d(self.input_shape[4], momentum=0.95)
+        self.l2 = nn.Linear(in_features=self.input_shape[3], out_features=n_classes)
         # self.l2 = n
 
     def forward(self, x):
@@ -188,8 +188,8 @@ class MARS(nn.Module):
         x = torch.transpose(x, 0, 1)
         x = torch.flatten(x, 1)
 
-        x = F.relu(self.l1(x))
-        x = self.bn2(x)
+        # x = F.relu(self.l1(x))
+        # x = self.bn2(x)
         x = F.dropout(x, 0.4)
 
         x = self.l2(x)

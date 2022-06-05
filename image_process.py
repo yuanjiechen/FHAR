@@ -68,11 +68,11 @@ def split_train_test(type="depth"):
                     fetch_key = key[i:i + hz * window]
                     for k in fetch_key:
                         one_frame = np.asarray(raw_data[k], dtype=np.float32)
-                        #print(one_frame.shape)
                         frame64 = np.zeros((64, 5), dtype=np.float32)
-                        if one_frame.shape[0] != 0:
+                        if one_frame.shape[0] != 0: 
+                            one_frame = one_frame[np.lexsort(keys=(one_frame[:, 4], one_frame[:, 3], one_frame[:, 2], one_frame[:, 1], one_frame[:, 0]))]
                             frame64[:one_frame.shape[0], :one_frame.shape[1]] = one_frame
-                            frame64 = frame64[np.lexsort(keys=(frame64[:, 4], frame64[:, 3], frame64[:, 2], frame64[:, 1], frame64[:, 0]))]
+                            # frame64 = frame64[np.lexsort(keys=(frame64[:, 4], frame64[:, 3], frame64[:, 2], frame64[:, 1], frame64[:, 0]))]
                         sample.append(frame64)
                     sample = np.stack(sample, axis=0)
                     sample = sample.transpose(0, 2, 1).reshape((60, 5, 8, 8))

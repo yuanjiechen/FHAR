@@ -2,6 +2,7 @@ from pathlib import Path
 import torch
 import argparse
 import logging
+import shutil
 from datetime import datetime
 
 from util.getlog import get_log
@@ -24,6 +25,15 @@ if __name__ == "__main__":
     while result.exists():
         i += 1
         result = Path(f"./result/{args.selection}_{i}.csv")
+
+    with open(result, "a+"):
+        sfx = result.stem
+        model_path = result.parent.joinpath(sfx)
+        model_path.mkdir()
+        shutil.copy("./train_cfg.csv", model_path.joinpath(f"{sfx}_cfg.csv"))
+
+        pass
+
 
     print(f"[{datetime.now()}] Result will be saved in {result}")
 
