@@ -53,7 +53,7 @@ class Train():
             dataset=train_set,
             batch_size=self.batch_sz,
             shuffle=True,
-            num_workers=4,
+            num_workers=10,
             drop_last=True
         )
 
@@ -61,7 +61,7 @@ class Train():
             dataset=test_set,
             batch_size=self.batch_sz,
             shuffle=False,
-            num_workers=4,
+            num_workers=10,
             drop_last=True
         )
 

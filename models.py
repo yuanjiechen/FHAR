@@ -240,7 +240,7 @@ class CNN_LSTM(nn.Module):
         #x = x.reshape((batch_size,60,384))
         #x = x.reshape((batch_size,60,192))
         #x = x.reshape((batch_size,60,512))
-        x = x.reshape((batch_size,60,self.input_shape[-1]))
+        x = x.reshape((batch_size,40,self.input_shape[-1]))
 
         x = F.dropout(x)
 
