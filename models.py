@@ -229,7 +229,7 @@ class CNN_LSTM(nn.Module):
         #x = F.relu(self.conv2(x))
         x = F.max_pool3d(x, kernel_size=self.pool_kernal, stride=self.pool_stride)
         x = F.relu(self.conv3_1(x))
-        #x = F.relu(self.conv3_2(x))
+        x = F.relu(self.conv3_2(x))
         x = F.max_pool3d(x, kernel_size=self.pool_kernal, stride=self.pool_stride)
         x = F.relu(self.conv3_3(x))
         #x = F.relu(self.conv3_4(x))

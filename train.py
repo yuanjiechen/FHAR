@@ -68,9 +68,9 @@ class Train():
         return train_loader, test_loader
 
     def trainer(self, path:Path):
-        # titles = ["train_acc", "acc", "train_loss", "test_loss", 
-        #       "class0_recall", "class1_recall", "class2_recall",
-        #       "class0_precision", "class1_precision", "class2_precision"]
+        titles = ["train_acc", "acc", "train_loss", "test_loss", 
+              "class0_recall", "class1_recall", "class2_recall",
+              "class0_precision", "class1_precision", "class2_precision"]
         # titles = ["train_acc", "acc", "train_loss", "test_loss", 
         #       "class0_recall", "class1_recall", "class2_recall", "class3_recall", "class4_recall",
         #       "class0_precision", "class1_precision", "class2_precision", "class3_precision", "class4_precision"]
@@ -80,10 +80,10 @@ class Train():
         # titles = ["train_acc", "acc", "train_loss", "test_loss", 
         #       "class0_recall", "class1_recall", "class2_recall", "class3_recall", "class4_recall","class5_recall", "class6_recall", "class7_recall", "class8_recall", "class9_recall",
         #       "class0_precision", "class1_precision", "class2_precision", "class3_precision", "class4_precision","class5_precision", "class6_precision", "class7_precision", "class8_precision", "class9_precision"]
-        titles = ["train_acc", "acc", "train_loss", "test_loss", 
-              "class0_recall", "class1_recall", "class2_recall", "class3_recall", "class4_recall", "class5_recall", "class6_recall", "class7_recall", "class8_recall", "class9_recall", "class10_recall", "class11_recall",
-              "class0_precision", "class1_precision", "class2_precision", "class3_precision", "class4_precision", "class5_precision", "class6_precision", "class7_precision", "class8_precision", "class9_precision", "class10_precision", "class11_precision"]
-        n_classes = 12
+        # titles = ["train_acc", "acc", "train_loss", "test_loss", 
+        #       "class0_recall", "class1_recall", "class2_recall", "class3_recall", "class4_recall", "class5_recall", "class6_recall", "class7_recall", "class8_recall", "class9_recall", "class10_recall", "class11_recall",
+        #       "class0_precision", "class1_precision", "class2_precision", "class3_precision", "class4_precision", "class5_precision", "class6_precision", "class7_precision", "class8_precision", "class9_precision", "class10_precision", "class11_precision"]
+        n_classes = 3
         model = Model(n_classes, self.args.selection).to(self.device)
         loss_func = get_loss(self.args.selection)
         align_loss = nn.MSELoss()
