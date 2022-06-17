@@ -9,11 +9,12 @@ import pandas as pd
 
 depth_path = Path("/home/deepblue/mmWave_parse/depth_images")
 processed_depth = Path("/home/yuanjie/depth_")
+mid_depth = Path("/home/yuanjie/depth_mid")
 
 skeleton_path = Path("/home/deepblue/mmWave_parse/skeleton_images")
 processed_skeleton = Path("/home/yuanjie/skeloton")
 
-mm_path = Path("/home/deepblue/mmWave_parse/mmwave_points")
+mm_path = Path("/mnt/ssd1/FIL_dataset_mmwave/")
 processed_mm = Path("/home/yuanjie/mm")
 
 pt = re.compile(r'(?<=a)[0-9]{2}|(?<=s)[0-9]{2}')
@@ -25,7 +26,7 @@ def split_train_test(type="depth"):
 
     dic = {0:0, 3:1, 6:2, 7:3, 8:4, 9:5, 10:6, 11:7, 12:8}
     data_count = 0
-    for fd in mm_path.glob("*"):
+    for fd in depth_path.glob("*"):
         if fd.name in ['train', "test"]:
             continue
         else:
@@ -93,8 +94,10 @@ def split_train_test(type="depth"):
             elif type == "mmwave" or type == "depth":
                 if type == "mmwave": img_list = sorted(fd.glob("*.npz"), key=lambda x:int(x.stem))
                 elif type == "depth": img_list = sorted(fd.glob("*.png"), key=lambda x:int(x.stem))
-                i = 0
+            
 
+                all_list = []
+                i = 0
                 while (i + hz * window) < len(img_list):
                     sample = []
                     tmp_list = img_list[i:i + hz * window]  
@@ -105,18 +108,24 @@ def split_train_test(type="depth"):
                         sample.append(img)
                     
                     sample = np.stack(sample, axis=0)
-                    labels = np.asarray([act])
+                    all_list.append(sample)
                     i += int(timestep * hz)
+                all_list = np.stack(all_list, axis=0)
+                print(all_list.shape)
+                mid_depth.joinpath(fd.name).mkdir(parents=True, exist_ok=True)
+                np.savez(mid_depth.joinpath(fd.name).joinpath("depth.npz"), all_list)
+                #     labels = np.asarray([act])
+                #     i += int(timestep * hz)
 
-                    if subj < 10:
-                        savepath = processed_skeleton.joinpath(f"train/{data_count}.npz")
+                #     if subj < 10:
+                #         savepath = processed_skeleton.joinpath(f"train/{data_count}.npz")
 
-                    else:
-                        savepath = processed_skeleton.joinpath(f"test/{data_count}.npz")
+                #     else:
+                #         savepath = processed_skeleton.joinpath(f"test/{data_count}.npz")
                     
-                    data_count += 1
+                #     data_count += 1
 
-                    np.savez(savepath, sample, labels)
+                #     np.savez(savepath, sample, labels)
 
 
 def generate_list(path:Path):
@@ -135,5 +144,5 @@ def generate_list(path:Path):
             f.write(f"{name}\n")
         
 
-split_train_test("mm")
-generate_list(processed_mm)
+split_train_test("depth")
+# generate_list(processed_mm)
