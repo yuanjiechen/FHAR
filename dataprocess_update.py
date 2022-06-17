@@ -35,21 +35,21 @@ class Eat_data(Dataset):
         fl = np.load(data_path.joinpath(f"{self.name_list[index]}.npz"))
         data = torch.tensor(fl['arr_0'], dtype=torch.float32)
         label = torch.tensor(fl['arr_1'][0], dtype=torch.long)
-        transdict = {
-            0:0,
-            1:0,
-            2:0,
-            3:1,
-            4:1,
-            5:1,
-            6:2,
-            7:2,
-            8:2,
-            9:2,
-            10:2,
-            11:2,
-        }
-        label = torch.tensor(transdict[int(label)], dtype=torch.long)
+        # transdict = {
+        #     0:0,
+        #     1:0,
+        #     2:0,
+        #     3:1,
+        #     4:1,
+        #     5:1,
+        #     6:2,
+        #     7:2,
+        #     8:2,
+        #     9:2,
+        #     10:2,
+        #     11:2,
+        # }
+        # label = torch.tensor(transdict[int(label)], dtype=torch.long)
         if self.selection == "DEPTH_LSTM" and self.split == "train":
             p1, p2, h, w = transforms.RandomCrop.get_params(torch.randn((1, 240, 240)), (228, 228))
             resize = transforms.Resize((240, 240), transforms.InterpolationMode.BILINEAR)

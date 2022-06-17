@@ -198,7 +198,7 @@ class MARS(nn.Module):
 
 
 class CNN_LSTM(nn.Module):
-    def __init__(self, n_classes, in_shape=[1, 32, 32, 32, 32, 32, 576], out_shape=[32, 32, 32, 32, 32, 32, 64], kernel_size=[3, 3, 3], stride=[1, 1, 1], pool_kernal=[2, 2, 2], pool_stride=[2, 2, 2]):
+    def __init__(self, n_classes, in_shape=[1, 32, 32, 32, 32, 32, 576], out_shape=[32, 32, 64, 32, 32, 32, 64], kernel_size=[7, 5, 3, 3, 3, 3], stride=[2, 1, 1, 1, 1, 1], pool_kernal=[2, 2, 2], pool_stride=[2, 2, 2]):
         super(CNN_LSTM, self).__init__()
 
         self.pool_kernal = pool_kernal
@@ -207,15 +207,15 @@ class CNN_LSTM(nn.Module):
         self.input_shape = in_shape
         self.output_shape = out_shape
 
-        self.conv1 = nn.Conv3d(in_channels=self.input_shape[0], out_channels=self.output_shape[0], kernel_size=kernel_size, stride=stride, padding="same")
+        self.conv1 = nn.Conv3d(in_channels=self.input_shape[0], out_channels=self.output_shape[0], kernel_size=kernel_size[0], stride=stride[0], padding=1)
 
-        self.conv2 = nn.Conv3d(in_channels=self.input_shape[1], out_channels=self.output_shape[1], kernel_size=kernel_size, stride=stride, padding="same")
+        self.conv2 = nn.Conv3d(in_channels=self.input_shape[1], out_channels=self.output_shape[1], kernel_size=kernel_size[1], stride=stride[1], padding=1)
 
-        self.conv3_1 = nn.Conv3d(in_channels=self.input_shape[2], out_channels=self.output_shape[2], kernel_size=kernel_size, stride=stride, padding="same")
-        self.conv3_2 = nn.Conv3d(in_channels=self.input_shape[3], out_channels=self.output_shape[3], kernel_size=kernel_size, stride=stride, padding="same")
+        self.conv3_1 = nn.Conv3d(in_channels=self.input_shape[2], out_channels=self.output_shape[2], kernel_size=kernel_size[2], stride=stride[2], padding=1)
+        # self.conv3_2 = nn.Conv3d(in_channels=self.input_shape[3], out_channels=self.output_shape[3], kernel_size=kernel_size[3], stride=stride[3], padding=1)
 
-        self.conv3_3 = nn.Conv3d(in_channels=self.input_shape[4], out_channels=self.output_shape[4], kernel_size=kernel_size, stride=stride, padding="same")
-        self.conv3_4 = nn.Conv3d(in_channels=self.input_shape[5], out_channels=self.output_shape[5], kernel_size=kernel_size, stride=stride, padding="same")
+        # self.conv3_3 = nn.Conv3d(in_channels=self.input_shape[4], out_channels=self.output_shape[4], kernel_size=kernel_size[4], stride=stride[4], padding=1)
+        # self.conv3_4 = nn.Conv3d(in_channels=self.input_shape[5], out_channels=self.output_shape[5], kernel_size=kernel_size[5], stride=stride[5], padding=1)
 
         self.rnn = nn.LSTM(input_size=self.input_shape[6], hidden_size=self.output_shape[6], batch_first=True, bidirectional=True, num_layers=1)
 
@@ -226,14 +226,14 @@ class CNN_LSTM(nn.Module):
         batch_size = x.size()[0]
         x = x.flatten(0,1)
         x = F.relu(self.conv1(x))
-        #x = F.relu(self.conv2(x))
+        x = F.relu(self.conv2(x))
         x = F.max_pool3d(x, kernel_size=self.pool_kernal, stride=self.pool_stride)
         x = F.relu(self.conv3_1(x))
-        x = F.relu(self.conv3_2(x))
+        # x = F.relu(self.conv3_2(x))
         x = F.max_pool3d(x, kernel_size=self.pool_kernal, stride=self.pool_stride)
-        x = F.relu(self.conv3_3(x))
-        #x = F.relu(self.conv3_4(x))
-        x = F.max_pool3d(x, kernel_size=self.pool_kernal, stride=self.pool_stride)
+        # x = F.relu(self.conv3_3(x))
+        # x = F.relu(self.conv3_4(x))
+        # x = F.max_pool3d(x, kernel_size=self.pool_kernal, stride=self.pool_stride)
         x = torch.flatten(x, 1)
 
         #x = x.reshape((batch_size,60,128))
@@ -255,6 +255,7 @@ class CNN_LSTM(nn.Module):
         x = F.softmax(self.l1(x), 1)
         
         return x, d_alignment
+
 
 class Fused(nn.Module):
     def __init__(self, n_classes) -> None:
@@ -289,11 +290,11 @@ class Model(nn.Module):
 # out_shape = [32, 32, 32, 32, 32, 32, 20]
 if __name__ == "__main__":
     #x = torch.randn((5, 60, 32, 128))
-    x = torch.randn((5, 60, 240, 240)).to("cuda:0")
+    x = torch.randn((10, 40, 1, 21, 31, 31)).to("cuda:2")
 
     #in_shape = [256, 96, 256, 17408, 2048, 128] # 奇怪的数字
     #out_shape = [96, 256, 512, 2048, 128]
-    nt = Model(4, "DEPTH_LSTM").to("cuda:0")
+    nt = Model(4, "CNN_LSTM").to("cuda:2")
     # for pm in nt.parameters():
     #     print(pm)
     nt(x)
