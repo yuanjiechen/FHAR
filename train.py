@@ -70,8 +70,10 @@ class Train():
     def trainer(self, path:Path):
 
         n_classes = 12
-        titles = ["train_acc", "acc", "train_loss", "test_loss"].extend([f"class{i}_recall" for i in range(n_classes)].extend([f"class{i}_precision" for i in range(n_classes)])) 
-        
+        titles = ["train_acc", "acc", "train_loss", "test_loss"]
+        titles.extend([f"class{i}_recall" for i in range(n_classes)])
+        titles.extend([f"class{i}_precision" for i in range(n_classes)])
+
         model = Model(n_classes, self.args.selection).to(self.device)
         loss_func = get_loss(self.args.selection)
         align_loss = nn.MSELoss()
