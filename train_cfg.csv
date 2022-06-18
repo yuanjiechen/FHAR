@@ -1,7 +1,7 @@
 model_name,data_path,learning_rate,batch_size,epoch,weight_decay,lr_decay
 CNN_LSTM,/mnt/ssd1/processed_dataset_1_subj/, 0.001, 10, 100, 0, 0.98
 CNN_LN,../heatmaps/, 0.01, 30, 500, 0, 0.95
-CNN_DEPTH,/home/yuanjie/depth/,0.001,10,100,0,0.98
+CNN_DEPTH,/home/yuanjie/depth_/,0.001,10,100,0,0.98
 DEPTH_LSTM,/home/yuanjie/depth_/,0.001,10,1000,0,0.98
 MARS,/home/yuanjie/mm/,0.001,128,150,0,0
 Fused,/, 0.001, 30, 500, 0, 0.95
