@@ -17,14 +17,18 @@ if __name__ == "__main__":
 
     parser.add_argument("-sl", "--selection", type=str, default="", required=True, help="Select training model and dataset")
     parser.add_argument("-g", "--gpu", type=int, default=0, required=False, help="Select training GPU")
-    #parser.add_argument("-t", "--gpu", type=int, default=0, required=False, help="Select training GPU")
+    parser.add_argument("-t", "--tag", type=str, default="result", required=False, help="Select training GPU")
     args = parser.parse_args()
 
+    
     i = 1
-    result = Path(f"./result/{args.selection}_{i}.csv")
+    if args.tag == "result": fname = args.selection
+    else: fname = args.tag
+    result = Path(f"./result/{fname}_{i}.csv")
     while result.exists():
         i += 1
-        result = Path(f"./result/{args.selection}_{i}.csv")
+        result = Path(f"./result/{fname}_{i}.csv")
+    
 
     with open(result, "a+"):
         sfx = result.stem

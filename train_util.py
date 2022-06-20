@@ -14,8 +14,8 @@ def get_loss(selection):
         "DEPTH_LSTM":nn.CrossEntropyLoss(),
         "MARS":nn.CrossEntropyLoss()
     }
-
-    return loss_dict[selection]
+    if selection in list(loss_dict.keys()): return loss_dict[selection]
+    else: return nn.CrossEntropyLoss()
 
 def get_optimizer(selection, params, lr, decay=0):
 
@@ -38,7 +38,8 @@ def get_lr_decay(selection, optim, decay):
         "MARS": torch.optim.lr_scheduler.ExponentialLR(optim, decay)
     }
 
-    return decay_dict[selection]
+    if selection in list(decay_dict.keys()): return decay_dict[selection]
+    else: return torch.optim.lr_scheduler.ExponentialLR(optim, decay)
 
 def cal_result(labels:torch.Tensor, predictions:torch.Tensor, n_classes:int, average=None):
     classes = list(np.arange(n_classes))
